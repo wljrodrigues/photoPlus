@@ -30,11 +30,11 @@ const CropPanel: React.FC<CropPanelProps> = ({ onApplyCrop, onSetAspect, isLoadi
 
   return (
     <div className="w-full bg-gray-800/50 border border-gray-700 rounded-lg p-4 flex flex-col items-center gap-4 animate-fade-in backdrop-blur-sm">
-      <h3 className="text-lg font-semibold text-gray-300">Crop Image</h3>
-      <p className="text-sm text-gray-400 -mt-2">Click and drag on the image to select a crop area.</p>
+      <h3 className="text-lg font-semibold text-gray-300">Cortar Imagem</h3>
+      <p className="text-sm text-gray-400 -mt-2">Clique e arraste na imagem para selecionar uma área de corte.</p>
       
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-400">Aspect Ratio:</span>
+        <span className="text-sm font-medium text-gray-400">Proporção:</span>
         {aspects.map(({ name, value }) => (
           <button
             key={name}
@@ -46,7 +46,7 @@ const CropPanel: React.FC<CropPanelProps> = ({ onApplyCrop, onSetAspect, isLoadi
               : 'bg-white/10 hover:bg-white/20 text-gray-200'
             }`}
           >
-            {name}
+            {name === 'free' ? 'Livre' : name}
           </button>
         ))}
       </div>
@@ -56,7 +56,7 @@ const CropPanel: React.FC<CropPanelProps> = ({ onApplyCrop, onSetAspect, isLoadi
         disabled={isLoading || !isCropping}
         className="w-full max-w-xs mt-2 bg-gradient-to-br from-green-600 to-green-500 text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 ease-in-out shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/40 hover:-translate-y-px active:scale-95 active:shadow-inner text-base disabled:from-green-800 disabled:to-green-700 disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none"
       >
-        Apply Crop
+        Aplicar Corte
       </button>
     </div>
   );

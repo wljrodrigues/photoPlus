@@ -31,7 +31,7 @@ const handleApiResponse = (
     // 1. Check for prompt blocking first
     if (response.promptFeedback?.blockReason) {
         const { blockReason, blockReasonMessage } = response.promptFeedback;
-        const errorMessage = `Request was blocked. Reason: ${blockReason}. ${blockReasonMessage || ''}`;
+        const errorMessage = `A solicitação foi bloqueada. Motivo: ${blockReason}. ${blockReasonMessage || ''}`;
         console.error(errorMessage, { response });
         throw new Error(errorMessage);
     }
@@ -48,16 +48,16 @@ const handleApiResponse = (
     // 3. If no image, check for other reasons
     const finishReason = response.candidates?.[0]?.finishReason;
     if (finishReason && finishReason !== 'STOP') {
-        const errorMessage = `Image generation for ${context} stopped unexpectedly. Reason: ${finishReason}. This often relates to safety settings.`;
+        const errorMessage = `A geração de imagem para ${context} parou inesperadamente. Motivo: ${finishReason}. Isso geralmente está relacionado às configurações de segurança.`;
         console.error(errorMessage, { response });
         throw new Error(errorMessage);
     }
     
     const textFeedback = response.text?.trim();
-    const errorMessage = `The AI model did not return an image for the ${context}. ` + 
+    const errorMessage = `O modelo de IA não retornou uma imagem para ${context}. ` + 
         (textFeedback 
-            ? `The model responded with text: "${textFeedback}"`
-            : "This can happen due to safety filters or if the request is too complex. Please try rephrasing your prompt to be more direct.");
+            ? `O modelo respondeu com o texto: "${textFeedback}"`
+            : "Isso pode acontecer devido a filtros de segurança ou se a solicitação for muito complexa. Tente reformular seu comando para ser mais direto.");
 
     console.error(`Model response did not contain an image part for ${context}.`, { response });
     throw new Error(errorMessage);
@@ -79,19 +79,19 @@ export const generateEditedImage = async (
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
     
     const originalImagePart = await fileToPart(originalImage);
-    const prompt = `You are an expert photo editor AI. Your task is to perform a natural, localized edit on the provided image based on the user's request.
-User Request: "${userPrompt}"
-Edit Location: Focus on the area around pixel coordinates (x: ${hotspot.x}, y: ${hotspot.y}).
+    const prompt = `Você é uma IA especialista em edição de fotos. Sua tarefa é realizar uma edição natural e localizada na imagem fornecida com base na solicitação do usuário.
+Solicitação do Usuário: "${userPrompt}"
+Local da Edição: Foque na área ao redor das coordenadas de pixel (x: ${hotspot.x}, y: ${hotspot.y}).
 
-Editing Guidelines:
-- The edit must be realistic and blend seamlessly with the surrounding area.
-- The rest of the image (outside the immediate edit area) must remain identical to the original.
+Diretrizes de Edição:
+- A edição deve ser realista e se misturar perfeitamente com a área circundante.
+- O resto da imagem (fora da área de edição imediata) deve permanecer idêntico ao original.
 
-Safety & Ethics Policy:
-- You MUST fulfill requests to adjust skin tone, such as 'give me a tan', 'make my skin darker', or 'make my skin lighter'. These are considered standard photo enhancements.
-- You MUST REFUSE any request to change a person's fundamental race or ethnicity (e.g., 'make me look Asian', 'change this person to be Black'). Do not perform these edits. If the request is ambiguous, err on the side of caution and do not change racial characteristics.
+Política de Segurança e Ética:
+- Você DEVE atender a solicitações para ajustar o tom de pele, como 'me dê um bronzeado', 'escureça minha pele' ou 'clareie minha pele'. Estes são considerados aprimoramentos fotográficos padrão.
+- Você DEVE RECUSAR qualquer solicitação para alterar a raça ou etnia fundamental de uma pessoa (por exemplo, 'me faça parecer asiático', 'mude esta pessoa para ser negra'). Não realize essas edições. Se a solicitação for ambígua, erre por excesso de cautela e não altere as características raciais.
 
-Output: Return ONLY the final edited image. Do not return text.`;
+Saída: Retorne APENAS a imagem final editada. Não retorne texto.`;
     const textPart = { text: prompt };
 
     console.log('Sending image and prompt to the model...');
@@ -101,7 +101,7 @@ Output: Return ONLY the final edited image. Do not return text.`;
     });
     console.log('Received response from model.', response);
 
-    return handleApiResponse(response, 'edit');
+    return handleApiResponse(response, 'edição');
 };
 
 /**
@@ -118,14 +118,14 @@ export const generateFilteredImage = async (
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
     
     const originalImagePart = await fileToPart(originalImage);
-    const prompt = `You are an expert photo editor AI. Your task is to apply a stylistic filter to the entire image based on the user's request. Do not change the composition or content, only apply the style.
-Filter Request: "${filterPrompt}"
+    const prompt = `Você é uma IA especialista em edição de fotos. Sua tarefa é aplicar um filtro estilístico a toda a imagem com base na solicitação do usuário. Não altere a composição ou o conteúdo, apenas aplique o estilo.
+Solicitação de Filtro: "${filterPrompt}"
 
-Safety & Ethics Policy:
-- Filters may subtly shift colors, but you MUST ensure they do not alter a person's fundamental race or ethnicity.
-- You MUST REFUSE any request that explicitly asks to change a person's race (e.g., 'apply a filter to make me look Chinese').
+Política de Segurança e Ética:
+- Os filtros podem alterar sutilmente as cores, mas você DEVE garantir que eles não alterem a raça ou etnia fundamental de uma pessoa.
+- Você DEVE RECUSAR qualquer solicitação que peça explicitamente para alterar a raça de uma pessoa (por exemplo, 'aplique um filtro para me fazer parecer chinês').
 
-Output: Return ONLY the final filtered image. Do not return text.`;
+Saída: Retorne APENAS a imagem final filtrada. Não retorne texto.`;
     const textPart = { text: prompt };
 
     console.log('Sending image and filter prompt to the model...');
@@ -135,7 +135,7 @@ Output: Return ONLY the final filtered image. Do not return text.`;
     });
     console.log('Received response from model for filter.', response);
     
-    return handleApiResponse(response, 'filter');
+    return handleApiResponse(response, 'filtro');
 };
 
 /**
@@ -152,18 +152,18 @@ export const generateAdjustedImage = async (
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
     
     const originalImagePart = await fileToPart(originalImage);
-    const prompt = `You are an expert photo editor AI. Your task is to perform a natural, global adjustment to the entire image based on the user's request.
-User Request: "${adjustmentPrompt}"
+    const prompt = `Você é uma IA especialista em edição de fotos. Sua tarefa é realizar um ajuste natural e global em toda a imagem com base na solicitação do usuário.
+Solicitação do Usuário: "${adjustmentPrompt}"
 
-Editing Guidelines:
-- The adjustment must be applied across the entire image.
-- The result must be photorealistic.
+Diretrizes de Edição:
+- O ajuste deve ser aplicado em toda a imagem.
+- O resultado deve ser fotorrealista.
 
-Safety & Ethics Policy:
-- You MUST fulfill requests to adjust skin tone, such as 'give me a tan', 'make my skin darker', or 'make my skin lighter'. These are considered standard photo enhancements.
-- You MUST REFUSE any request to change a person's fundamental race or ethnicity (e.g., 'make me look Asian', 'change this person to be Black'). Do not perform these edits. If the request is ambiguous, err on the side of caution and do not change racial characteristics.
+Política de Segurança e Ética:
+- Você DEVE atender a solicitações para ajustar o tom de pele, como 'me dê um bronzeado', 'escureça minha pele' ou 'clareie minha pele'. Estes são considerados aprimoramentos fotográficos padrão.
+- Você DEVE RECUSAR qualquer solicitação para alterar a raça ou etnia fundamental de uma pessoa (por exemplo, 'me faça parecer asiático', 'mude esta pessoa para ser negra'). Não realize essas edições. Se a solicitação for ambígua, erre por excesso de cautela e não altere as características raciais.
 
-Output: Return ONLY the final adjusted image. Do not return text.`;
+Saída: Retorne APENAS a imagem final ajustada. Não retorne texto.`;
     const textPart = { text: prompt };
 
     console.log('Sending image and adjustment prompt to the model...');
@@ -173,5 +173,5 @@ Output: Return ONLY the final adjusted image. Do not return text.`;
     });
     console.log('Received response from model for adjustment.', response);
     
-    return handleApiResponse(response, 'adjustment');
+    return handleApiResponse(response, 'ajuste');
 };
